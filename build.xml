@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    build.xml — Apache Ant para TaskFlow
+    Comandos principales:
+      ant compile   → Compila las fuentes
+      ant jar       → Genera el .jar ejecutable
+      ant run       → Compila y ejecuta la aplicación
+      ant clean     → Limpia los archivos compilados
+-->
+<project name="TaskFlow" default="run" basedir=".">
+
+    <!-- ── Propiedades ──────────────────────────────────────────────── -->
+    <property name="src.dir"     value="src"/>
+    <property name="build.dir"   value="build"/>
+    <property name="dist.dir"    value="dist"/>
+    <property name="lib.dir"     value="lib"/>
+    <property name="main.class"  value="main.App"/>
+    <property name="jar.name"    value="TaskFlow.jar"/>
+
+    <!-- Classpath: incluye todos los .jar de lib/ (ojdbc.jar debe estar aquí) -->
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="*.jar"/>
+    </path>
+
+    <!-- ── Limpiar ──────────────────────────────────────────────────── -->
+    <target name="clean" description="Elimina archivos compilados">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <echo>Limpieza completada.</echo>
+    </target>
+
+    <!-- ── Compilar ─────────────────────────────────────────────────── -->
+    <target name="compile" description="Compila el código fuente">
+        <mkdir dir="${build.dir}"/>
+        <javac srcdir="${src.dir}"
+               destdir="${build.dir}"
+               includeantruntime="false"
+               encoding="UTF-8">
+            <classpath refid="classpath"/>
+        </javac>
+        <echo>Compilación exitosa.</echo>
+    </target>
+
+    <!-- ── Generar JAR ──────────────────────────────────────────────── -->
+    <target name="jar" depends="compile" description="Genera el JAR ejecutable">
+        <mkdir dir="${dist.dir}"/>
+        <jar destfile="${dist.dir}/${jar.name}" basedir="${build.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Class-Path" value="../lib/ojdbc8.jar"/>
+            </manifest>
+        </jar>
+        <echo>JAR generado en ${dist.dir}/${jar.name}</echo>
+    </target>
+
+    <!-- ── Ejecutar ─────────────────────────────────────────────────── -->
+    <target name="run" depends="compile" description="Ejecuta la aplicación">
+        <java classname="${main.class}" fork="true">
+            <classpath>
+                <pathelement path="${build.dir}"/>
+                <fileset dir="${lib.dir}" includes="*.jar"/>
+            </classpath>
+        </java>
+    </target>
+
+</project>

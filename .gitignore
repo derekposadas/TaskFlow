@@ -1,0 +1,32 @@
+# ── Compilados Java ──────────────────────────────────────────
+build/
+dist/
+*.class
+
+# ── Driver Oracle (no distribuir por licencia) ────────────────
+lib/ojdbc*.jar
+lib/ojdbc*.zip
+
+# ── NetBeans ──────────────────────────────────────────────────
+nbproject/private/
+nbproject/build-impl.xml
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# ── IDEs ──────────────────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.suo
+*.user
+
+# ── Sistema operativo ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
