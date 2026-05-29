@@ -69,6 +69,7 @@ TaskFlow/
 ├── sql/
 │   └── taskflow_oracle.sql   → Script completo: tablas, secuencias, triggers y datos de ejemplo
 ├── lib/                      → ojdbc8.jar (ver instalación)
+├── TaskFlow.exe              → Lanzador
 ├── build.xml                 → Compilación con Apache Ant
 └── nbproject/                → Configuración NetBeans (opcional)
 ```
@@ -83,7 +84,6 @@ TaskFlow/
 |---|---|
 | Java JDK | 17 o superior — [adoptium.net](https://adoptium.net) |
 | Oracle Database | XE / 19c / 21c — [oracle.com](https://www.oracle.com/database/technologies/xe-downloads.html) |
-| ojdbc8.jar | [mvnrepository.com](https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8) |
 
 ---
 
@@ -96,30 +96,20 @@ cd TaskFlow
 
 ---
 
-### Paso 2 — Añadir el driver JDBC
-
-El driver de Oracle no se puede distribuir en el repositorio por su licencia. Descarga `ojdbc8.jar` del enlace de arriba y colócalo en:
-
-```
-TaskFlow/lib/ojdbc8.jar
-```
-
----
-
-### Paso 3 — Configurar la base de datos
+### Paso 2 — Configurar la base de datos
 
 Abre SQL Developer o SQL*Plus con un usuario administrador y ejecuta:
 
 ```sql
-CREATE USER taskflow IDENTIFIED BY taskflow123;
-GRANT CONNECT, RESOURCE, DBA TO taskflow;
+CREATE USER TASKFLOW IDENTIFIED BY 1234;
+GRANT CONNECT, RESOURCE, DBA TO TASKFLOW;
 ```
 
-Luego conéctate como `taskflow` y ejecuta el script completo:
+Luego conéctate como `TASKFLOW` y ejecuta el script completo:
 
 ```bash
 # SQL*Plus
-sqlplus taskflow/taskflow123@localhost:1521/XE
+sqlplus TASKFLOW/1234@localhost:1521/XE
 @sql/taskflow_oracle.sql
 ```
 
@@ -129,38 +119,16 @@ O en SQL Developer: abre `sql/taskflow_oracle.sql` y pulsa **F5**.
 
 ---
 
-### Paso 4 — Ajustar la conexión JDBC
+### Paso 3 — Ejecutar
 
-Edita `src/database/DatabaseConnection.java` con los datos de tu instancia Oracle:
-
-```java
-private static final String URL      = "jdbc:oracle:thin:@//localhost:1521/XEPDB1";
-private static final String USUARIO  = "taskflow";
-private static final String PASSWORD = "taskflow123";
-```
-
-> Si usas Oracle XE con SID en vez de Service Name: `jdbc:oracle:thin:@localhost:1521:XE`
-
----
-
-### Paso 5 — Compilar y ejecutar
-
-```cmd
-cd TaskFlow
-dir /s /b src\*.java > sources.txt
-javac -encoding UTF-8 -cp "lib\*" -d build @sources.txt
-jar cfe dist\TaskFlow.jar main.App -C build .
-java -cp "dist\TaskFlow.jar;lib\*" main.App
-```
-
-O si tienes el `.exe` generado con Launch4j, simplemente haz doble clic en `TaskFlow.exe`.
+Abrir el archivo `TaskFlow.exe`.
 
 ---
 
 ## Problemas frecuentes
 
 **`ClassNotFoundException: oracle.jdbc.driver.OracleDriver`**
-El archivo `ojdbc8.jar` no está en `lib/`. Repite el Paso 2.
+El archivo `ojdbc8.jar` no está en `lib/`.
 
 **`ORA-01017: invalid username/password`**
 Usuario o contraseña incorrectos en `DatabaseConnection.java`.
