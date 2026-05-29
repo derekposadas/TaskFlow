@@ -3,10 +3,6 @@ build/
 dist/
 *.class
 
-# ── Driver Oracle (no distribuir por licencia) ────────────────
-lib/ojdbc*.jar
-lib/ojdbc*.zip
-
 # ── NetBeans ──────────────────────────────────────────────────
 nbproject/private/
 nbproject/build-impl.xml
