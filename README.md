@@ -1,234 +1,178 @@
-# ⚡ TaskFlow — Gestor de Tareas
+# TaskFlow — Gestor de Tareas y Proyectos
 
-> Aplicación de escritorio para gestión de proyectos, tareas y equipos de trabajo.  
-> Desarrollada en **Java + Swing**, conectada a **Oracle Database**, con arquitectura **MVC**.
-
----
-
-## 📋 ¿Qué hace TaskFlow?
-
-TaskFlow es una herramienta de productividad para equipos pequeños y medianos que permite:
-
-- **Organizar proyectos** — crea y gestiona proyectos con estado (Activo, Pausado, Finalizado) y asígnalos a un equipo.
-- **Gestionar tareas** — crea tareas dentro de cada proyecto, asígnalas a usuarios, cambia su estado (Pendiente → En Progreso → Completada) y filtra por prioridad.
-- **Administrar usuarios** — registra los miembros del equipo con su rol (Admin, Desarrollador, Diseñador, Tester…).
-- **Formar equipos** — agrupa usuarios en equipos y asigna esos equipos a los proyectos.
-
-Todo desde una interfaz limpia y sin necesidad de abrir ningún IDE.
+Aplicación de escritorio para la gestión de proyectos, tareas y equipos de trabajo, desarrollada en **Java + Swing** con conexión a **Oracle Database** y arquitectura **MVC**.
 
 ---
 
-## 🖥️ Capturas de pantalla
+## Tecnologías
+
+![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk)
+![Oracle](https://img.shields.io/badge/Oracle_DB-XE-red?logo=oracle)
+![Swing](https://img.shields.io/badge/UI-Swing-blue)
+![Architecture](https://img.shields.io/badge/Arquitectura-MVC-green)
+![Pattern](https://img.shields.io/badge/Patrón-DAO_·_Singleton-purple)
+
+---
+
+## Descripción
+
+TaskFlow es una herramienta de productividad pensada para equipos pequeños y medianos. Permite gestionar el ciclo de vida completo de un proyecto: desde la creación del equipo y los usuarios hasta el seguimiento individual de cada tarea.
+
+La aplicación no requiere ningún IDE para ejecutarse — arranca directamente desde un ejecutable `.exe` en Windows.
+
+---
+
+## Funcionalidades
+
+| Módulo | Operaciones |
+|---|---|
+| **Usuarios** | Crear, editar, eliminar, listar, buscar por nombre |
+| **Proyectos** | Crear, editar, eliminar, asignar equipo, filtrar por estado |
+| **Tareas** | Crear, editar, cambiar estado (Pendiente / En Progreso / Completada), asignar a usuario, filtrar y buscar |
+| **Equipos** | Crear, editar, eliminar, añadir y quitar miembros |
+
+---
+
+## Arquitectura
+
+El proyecto sigue el patrón **MVC** con una capa **DAO** para aislar completamente el acceso a datos:
 
 ```
-┌──────────────┬───────────────────────────────────────────┐
-│              │  📁 Proyectos                              │
-│  🏠 Dashboard│ ┌────┬──────────────┬────────┬──────────┐ │
-│  👤 Usuarios │ │ ID │ Nombre       │ Estado │  Equipo  │ │
-│  📁 Proyectos│ ├────┼──────────────┼────────┼──────────┤ │
-│  ✅ Tareas   │ │  1 │ Portal Web   │ Activo │ Frontend │ │
-│  👥 Equipos  │ │  2 │ API REST     │ Activo │ Backend  │ │
-│              │ └────┴──────────────┴────────┴──────────┘ │
-│              │  [+ Nuevo] [✏ Editar] [🗑 Eliminar]       │
-└──────────────┴───────────────────────────────────────────┘
+Vista (Swing)        Controlador              DAO (SQL)
+─────────────        ───────────              ─────────
+UsuariosPanel   →   UsuarioController   →   UsuarioDAO
+ProyectosPanel  →   ProyectoController  →   ProyectoDAO  →  Oracle DB
+TareasPanel     →   TareaController     →   TareaDAO
+EquiposPanel    →   EquipoController    →   EquipoDAO
+```
+
+- **Modelo** (`model/`) — POJOs puros, sin lógica de negocio.
+- **Vista** (`view/`) — Paneles Swing. No accede a la base de datos directamente.
+- **Controlador** (`controller/`) — Recibe eventos de la vista, valida y delega al DAO.
+- **DAO** (`dao/`) — Único responsable de ejecutar sentencias SQL contra Oracle.
+- **DatabaseConnection** (`database/`) — Singleton JDBC que gestiona la conexión.
+
+---
+
+## Estructura del proyecto
+
+```
+TaskFlow/
+├── src/
+│   ├── main/           → App.java (punto de entrada)
+│   ├── model/          → Usuario, Proyecto, Tarea, Equipo
+│   ├── view/           → Paneles y formularios Swing
+│   ├── controller/     → Lógica de negocio
+│   ├── dao/            → Consultas SQL (CRUD)
+│   ├── database/       → Conexión JDBC Singleton
+│   └── utils/          → Helpers de estilo y UI
+├── sql/
+│   └── taskflow_oracle.sql   → Script completo: tablas, secuencias, triggers y datos de ejemplo
+├── lib/                      → ojdbc8.jar (ver instalación)
+├── build.xml                 → Compilación con Apache Ant
+└── nbproject/                → Configuración NetBeans (opcional)
 ```
 
 ---
 
-## 🚀 Inicio rápido
+## Instalación y ejecución
 
-### Requisitos previos
+### Requisitos
 
-| Herramienta | Versión mínima | Enlace |
-|---|---|---|
-| Java JDK | 11 o superior | [adoptium.net](https://adoptium.net) |
-| Oracle Database | XE / 11g / 19c / 21c | [oracle.com](https://www.oracle.com/database/technologies/xe-downloads.html) |
-| ojdbc8.jar | Cualquier versión reciente | [mvnrepository.com](https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8) |
+| Herramienta | Versión |
+|---|---|
+| Java JDK | 17 o superior — [adoptium.net](https://adoptium.net) |
+| Oracle Database | XE / 19c / 21c — [oracle.com](https://www.oracle.com/database/technologies/xe-downloads.html) |
+| ojdbc8.jar | [mvnrepository.com](https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8) |
 
 ---
 
 ### Paso 1 — Clonar el repositorio
 
 ```bash
-git clone https://github.com/TU_USUARIO/TaskFlow.git
+git clone https://github.com/derekposadas/TaskFlow.git
 cd TaskFlow
 ```
 
 ---
 
-### Paso 2 — Añadir el driver Oracle
+### Paso 2 — Añadir el driver JDBC
 
-El driver JDBC no está incluido por cuestiones de licencia. Descárgalo y cópialo en la carpeta `lib/`:
+El driver de Oracle no se puede distribuir en el repositorio por su licencia. Descarga `ojdbc8.jar` del enlace de arriba y colócalo en:
 
 ```
-TaskFlow/
-└── lib/
-    └── ojdbc8.jar   ← colócalo aquí
+TaskFlow/lib/ojdbc8.jar
 ```
-
-> **¿Dónde descargarlo?**  
-> [https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8](https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8)  
-> → Haz clic en la versión más reciente → descarga el `.jar`
 
 ---
 
-### Paso 3 — Preparar la base de datos Oracle
+### Paso 3 — Configurar la base de datos
 
-1. Abre **SQL Developer** o **SQL\*Plus** con un usuario administrador.
-2. Crea el usuario de la aplicación:
+Abre SQL Developer o SQL*Plus con un usuario administrador y ejecuta:
 
 ```sql
 CREATE USER taskflow IDENTIFIED BY taskflow123;
 GRANT CONNECT, RESOURCE, DBA TO taskflow;
 ```
 
-3. Conéctate como `taskflow` y ejecuta el script completo:
+Luego conéctate como `taskflow` y ejecuta el script completo:
 
-```
-Archivo: sql/taskflow_oracle.sql
-```
-
-En SQL Developer: abre el archivo → selecciona todo → **F5** (Ejecutar script).  
-En SQL\*Plus:
 ```bash
+# SQL*Plus
 sqlplus taskflow/taskflow123@localhost:1521/XE
-@ruta/al/archivo/sql/taskflow_oracle.sql
+@sql/taskflow_oracle.sql
 ```
+
+O en SQL Developer: abre `sql/taskflow_oracle.sql` y pulsa **F5**.
 
 > El script crea todas las tablas, secuencias, triggers e inserta datos de ejemplo.
 
 ---
 
-### Paso 4 — Configurar la conexión JDBC
+### Paso 4 — Ajustar la conexión JDBC
 
-Edita el archivo `src/database/DatabaseConnection.java` y ajusta estos valores:
+Edita `src/database/DatabaseConnection.java` con los datos de tu instancia Oracle:
 
 ```java
-private static final String URL      = "jdbc:oracle:thin:@localhost:1521:XE";
+private static final String URL      = "jdbc:oracle:thin:@//localhost:1521/XEPDB1";
 private static final String USUARIO  = "taskflow";
 private static final String PASSWORD = "taskflow123";
 ```
 
-| Campo | Descripción |
-|---|---|
-| `localhost` | IP o nombre del servidor Oracle |
-| `1521` | Puerto por defecto de Oracle |
-| `XE` | SID de Oracle Express. Usa `ORCL` si tienes Enterprise |
-
-> Si usas Oracle 21c con Service Name: `jdbc:oracle:thin:@//localhost:1521/XEPDB1`
+> Si usas Oracle XE con SID en vez de Service Name: `jdbc:oracle:thin:@localhost:1521:XE`
 
 ---
 
-### Paso 5 — Ejecutar la aplicación
+### Paso 5 — Compilar y ejecutar
 
-#### 🪟 Windows
-
-Haz doble clic en `iniciar.bat`  
-o desde la terminal:
 ```cmd
-iniciar.bat
+cd TaskFlow
+dir /s /b src\*.java > sources.txt
+javac -encoding UTF-8 -cp "lib\*" -d build @sources.txt
+jar cfe dist\TaskFlow.jar main.App -C build .
+java -cp "dist\TaskFlow.jar;lib\*" main.App
 ```
 
-#### 🐧 Linux / 🍎 macOS
-
-```bash
-chmod +x iniciar.sh
-./iniciar.sh
-```
-
-> Los scripts compilan automáticamente el proyecto la primera vez. En ejecuciones siguientes arrancan directamente.
+O si tienes el `.exe` generado con Launch4j, simplemente haz doble clic en `TaskFlow.exe`.
 
 ---
 
-## 📁 Estructura del proyecto
+## Problemas frecuentes
 
-```
-TaskFlow/
-├── src/
-│   ├── model/          → Clases de datos (Usuario, Proyecto, Tarea, Equipo)
-│   ├── view/           → Interfaz gráfica Swing (paneles y formularios)
-│   ├── controller/     → Lógica de negocio (conecta Vista con DAO)
-│   ├── dao/            → Consultas SQL a Oracle (CRUD)
-│   ├── database/       → Conexión JDBC Singleton
-│   ├── utils/          → Estilos, colores y helpers de UI
-│   └── main/           → App.java — punto de entrada
-├── sql/
-│   └── taskflow_oracle.sql   → Script completo de base de datos
-├── lib/                      → Aquí va ojdbc8.jar (no incluido)
-├── iniciar.bat               → Lanzador para Windows
-├── iniciar.sh                → Lanzador para Linux/macOS
-├── build.xml                 → Configuración Apache Ant
-└── nbproject/                → Configuración NetBeans (opcional)
-```
+**`ClassNotFoundException: oracle.jdbc.driver.OracleDriver`**
+El archivo `ojdbc8.jar` no está en `lib/`. Repite el Paso 2.
+
+**`ORA-01017: invalid username/password`**
+Usuario o contraseña incorrectos en `DatabaseConnection.java`.
+
+**`ORA-12541: TNS no listener`**
+Oracle no está arrancado. En Windows, busca el servicio `OracleServiceXE` en el Administrador de servicios y arráncalo.
+
+**Las tablas aparecen vacías**
+El script SQL no se ejecutó correctamente. Repite el Paso 3.
 
 ---
 
-## 🏗️ Arquitectura MVC
+## Licencia
 
-```
-  VISTA (Swing)          CONTROLADOR           DAO (SQL)
-  ─────────────          ───────────           ─────────
-  UsuariosPanel    ───▶  UsuarioController ───▶ UsuarioDAO
-  ProyectosPanel   ───▶  ProyectoController───▶ ProyectoDAO    ───▶  Oracle DB
-  TareasPanel      ───▶  TareaController   ───▶ TareaDAO
-  EquiposPanel     ───▶  EquipoController  ───▶ EquipoDAO
-```
-
-- **Modelo** (`model/`) — POJOs: solo datos, sin lógica.
-- **Vista** (`view/`) — Interfaz gráfica. No accede a la BD directamente.
-- **Controlador** (`controller/`) — Recibe eventos de la vista, valida y delega al DAO.
-- **DAO** (`dao/`) — Único responsable de ejecutar SQL contra Oracle.
-
----
-
-## ✅ Funcionalidades
-
-| Módulo | Operaciones disponibles |
-|---|---|
-| **Usuarios** | Crear, editar, eliminar, listar, buscar |
-| **Proyectos** | Crear, editar, eliminar, listar, buscar, asignar equipo |
-| **Tareas** | Crear, editar, eliminar, cambiar estado, filtrar por estado, buscar, asignar a usuario |
-| **Equipos** | Crear, editar, eliminar, añadir/quitar miembros |
-
----
-
-## 🛠️ Tecnologías utilizadas
-
-- **Java SE 11** — lenguaje principal
-- **Swing** — interfaz gráfica de escritorio
-- **Oracle Database XE** — base de datos relacional
-- **JDBC** — conexión Java ↔ Oracle
-- **Apache Ant** — compilación y empaquetado
-- **Patrón MVC** — arquitectura de la aplicación
-- **Patrón DAO** — separación de la lógica de acceso a datos
-- **Patrón Singleton** — gestión de la conexión a BD
-
----
-
-## ❓ Problemas frecuentes
-
-**`ClassNotFoundException: oracle.jdbc.driver.OracleDriver`**  
-→ Falta el archivo `lib/ojdbc8.jar`. Sigue el Paso 2.
-
-**`ORA-01017: invalid username/password`**  
-→ Revisa usuario y contraseña en `DatabaseConnection.java`.
-
-**`ORA-12541: no listener`**  
-→ El servicio de Oracle no está arrancado. Inicia el listener:  
-```bash
-lsnrctl start   # Linux/macOS
-```
-En Windows: busca "OracleServiceXE" en Servicios y arráncalo.
-
-**La ventana abre pero las tablas están vacías**  
-→ El script SQL no se ejecutó correctamente. Repite el Paso 3.
-
----
-
-## 📄 Licencia
-
-Proyecto educativo de libre uso. Puedes adaptarlo y extenderlo libremente.
-
----
-
-*Desarrollado con ☕ Java · Swing · Oracle Database · Arquitectura MVC*
+Proyecto de uso libre para fines educativos y de portfolio. Puedes adaptarlo y extenderlo libremente.
